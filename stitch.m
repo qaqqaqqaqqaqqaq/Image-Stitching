@@ -1,0 +1,28 @@
+function I = stitch(MV, I_ref, I_stitch)
+
+ch = size(I_ref, 3);
+
+if size(I_ref, 1) > size(I_stitch, 1)
+    h_max = size(I_ref, 1) + abs(MV(2));
+else
+    h_max = size(I_stitch, 1) + abs(MV(2));
+end
+
+I = zeros(h_max, MV(1) + size(I_stitch, 2), ch);
+m1 = repmat([ones(1, MV(1)) [(size(I_ref, 2)-MV(1)):-1:1]/(size(I_ref, 2)-MV(1))], [size(I_ref, 1) 1 ch]);
+m2 = repmat([[1:(size(I_ref, 2)-MV(1))]/(size(I_ref, 2)-MV(1)) ones(1, size(I_stitch, 2)-(size(I_ref, 2) - MV(1)))], [size(I_stitch, 1) 1 ch]);
+I_ref = I_ref .* m1;
+I_stitch = I_stitch .* m2;
+
+if MV(2) > 0
+    I(1:size(I_ref, 1), 1:size(I_ref, 2), :) = I_ref;
+    I(MV(2):MV(2)+size(I_stitch, 1)-1, MV(1):MV(1)+size(I_stitch, 2)-1, :) = I_stitch + I(MV(2):MV(2)+size(I_stitch, 1)-1, MV(1):MV(1)+size(I_stitch, 2)-1, :);
+elseif MV(2) < 0
+    I(abs(MV(2)):abs(MV(2))+size(I_ref, 1)-1, 1:size(I_ref, 2), :) = I_ref;
+    I(1:size(I_stitch, 1), MV(1):MV(1)+size(I_stitch, 2)-1, :) = I_stitch + I(1:size(I_stitch, 1), MV(1):MV(1)+size(I_stitch, 2)-1, :);
+else
+    I(1:size(I_ref, 1), 1:size(I_ref, 2), :) = I_ref;
+    I(1:size(I_stitch, 1), MV(1):MV(1)+size(I_stitch, 2)-1, :) = I_stitch + I(1:size(I_stitch, 1), MV(1):MV(1)+size(I_stitch, 2)-1, :);    
+end
+
+end
